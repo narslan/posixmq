@@ -4,6 +4,9 @@
 package posixmq
 
 import (
+	"context"
+	"errors"
+	"strings"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
@@ -21,7 +24,12 @@ type mqAttr struct {
 	_              int64
 }
 
-func Open(qname string) (MessageQueue, error) {
+func Open(qname string) (m MessageQueue, err error) {
+
+	if strings.HasPrefix(qname, "/") {
+		return m, errors.New("queue shall not start with /")
+	}
+
 	name, err := unix.BytePtrFromString(qname)
 	if err != nil {
 		return nil, err
@@ -45,4 +53,29 @@ func Open(qname string) (MessageQueue, error) {
 		return nil, errno
 	}
 	return messageQueue(mqd), nil
+}
+
+func (m messageQueue) Receive(ctx context.Context) (data []byte, err error) {
+
+	return
+}
+
+func (m messageQueue) Send(ctx context.Context, data []byte) (err error) {
+
+	// From MQ_SEND(3) manpage:
+	// mqd_t mqdes, const char *msg_ptr size_t msg_len, unsigned int msg_prio
+	mqd, _, errno := unix.Syscall6(
+		unix.SYS_MQ_OPEN,
+		uintptr(unsafe.Pointer(name)), // name
+		uintptr(flags),                // oflag
+		uintptr(MessageQueueOpenMode), // mode
+		uintptr(unsafe.Pointer(&mqAttr{
+			MaxQueueSize:   10,
+			MaxMessageSize: 8192,
+		})), 0, 0,
+	)
+	if errno != 0 {
+		return nil, errno
+	}
+	return
 }
