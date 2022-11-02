@@ -9,7 +9,7 @@ import (
 
 func TestOpen(t *testing.T) {
 
-	m, err := posixmq.Open("test queue")
+	m, err := posixmq.Open("test")
 	if err != nil {
 		t.Fatal(m, err)
 	}
@@ -23,13 +23,13 @@ func TestOpen(t *testing.T) {
 
 func TestSend(t *testing.T) {
 
-	m, err := posixmq.Open("test queue")
+	m, err := posixmq.Open("test")
 	if err != nil {
 		t.Fatal(m, err)
 	}
 
 	ctx := context.Background()
-	data := []byte("hell ya")
+	data := []byte("hello")
 	err = m.Send(ctx, data)
 	if err != nil {
 		t.Fatal(m, err)
