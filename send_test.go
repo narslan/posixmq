@@ -13,7 +13,7 @@ func TestOpen(t *testing.T) {
 		t.Fatal(m, err)
 	}
 
-	m, err = posixmq.Open("/")
+	m, err = posixmq.Open("test")
 	if err == nil {
 		t.Fatal(m, err)
 	}

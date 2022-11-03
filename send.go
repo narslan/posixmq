@@ -16,7 +16,7 @@ import (
 var _ Queue = (*MessageQueue)(nil)
 
 // MessageQueueOpenMode is the mode used to open message queues.
-const MessageQueueOpenMode = 0644
+const MessageQueueOpenMode = 0640
 
 const (
 	mq_open    = unix.SYS_MQ_OPEN
@@ -42,8 +42,9 @@ type mqAttr struct {
 func Open(qname string) (m *MessageQueue, err error) {
 
 	m = &MessageQueue{}
+	//TODO: this is weird, because according to spec names should start with /
 	if strings.HasPrefix(qname, "/") {
-		return m, errors.New("message queue shall not start with /")
+		return m, errors.New("message queue must start with /")
 	}
 
 	name, err := unix.BytePtrFromString(qname)
@@ -52,6 +53,8 @@ func Open(qname string) (m *MessageQueue, err error) {
 	}
 
 	flags := unix.O_RDWR | unix.O_CREAT
+
+	//mode := unix.S_IRUSR | unix.S_IWUSR | unix.S_IRGRP | unix.S_IWGRP | unix.S_IROTH | unix.S_IWOTH
 
 	// From MQ_OPEN(3) manpage:
 	// mqd_t mq_open(const char *name, int oflag, mode_t mode, struct mq_attr *attr);
@@ -81,7 +84,7 @@ func (m *MessageQueue) Receive() ([]byte, error) {
 	//size_t msg_len, unsigned int *restrict msg_prio,
 	//const struct timespec *restrict abs_timeout
 
-	deadline := time.Now().Add(1 * time.Second)
+	deadline := time.Now().Add(3 * time.Second)
 
 	t, err := unix.TimeToTimespec(deadline)
 	if err != nil {
