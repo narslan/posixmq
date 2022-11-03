@@ -4,7 +4,6 @@
 package posixmq
 
 import (
-	"context"
 	"errors"
 	"strings"
 	"time"
@@ -12,6 +11,9 @@ import (
 
 	"golang.org/x/sys/unix"
 )
+
+// Ensure type implements the interface.
+var _ Queue = (*MessageQueue)(nil)
 
 // MessageQueueOpenMode is the mode used to open message queues.
 const MessageQueueOpenMode = 0644
@@ -36,6 +38,7 @@ type mqAttr struct {
 	_              int64
 }
 
+// Open creates a message queue for read and write.
 func Open(qname string) (m *MessageQueue, err error) {
 
 	m = &MessageQueue{}
@@ -48,7 +51,7 @@ func Open(qname string) (m *MessageQueue, err error) {
 		return nil, err
 	}
 
-	flags := unix.O_WRONLY | unix.O_CREAT
+	flags := unix.O_RDWR | unix.O_CREAT
 
 	// From MQ_OPEN(3) manpage:
 	// mqd_t mq_open(const char *name, int oflag, mode_t mode, struct mq_attr *attr);
@@ -60,7 +63,9 @@ func Open(qname string) (m *MessageQueue, err error) {
 		uintptr(unsafe.Pointer(&mqAttr{
 			MaxQueueSize:   10,
 			MaxMessageSize: 8192,
-		})), 0, 0,
+		})), //queue attributes
+		0, //unused
+		0, //unused
 	)
 	if errno != 0 {
 		return nil, errno
@@ -70,24 +75,45 @@ func Open(qname string) (m *MessageQueue, err error) {
 	return
 }
 
-func (m *MessageQueue) Receive(ctx context.Context) (data []byte, err error) {
+func (m *MessageQueue) Receive() ([]byte, error) {
 
-	return
+	//mqd_t mqdes, char *restrict msg_ptr,
+	//size_t msg_len, unsigned int *restrict msg_prio,
+	//const struct timespec *restrict abs_timeout
+
+	deadline := time.Now().Add(1 * time.Second)
+
+	t, err := unix.TimeToTimespec(deadline)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]byte, 8192)
+	_, _, errno := unix.Syscall6(
+		mq_receive,
+		uintptr(m.fd),                     // mqdes
+		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
+		uintptr(8192),                     // msg_len
+		uintptr(0),                        // msg_prio
+		uintptr(unsafe.Pointer(&t)),       // abs_timeout
+		0,                                 // unused
+	)
+	if errno != 0 {
+		return nil, errno
+	}
+	return data, nil
+
 }
 
-func (m *MessageQueue) Send(ctx context.Context, data []byte) (err error) {
+func (m *MessageQueue) Send(data []byte, priority uint) (err error) {
 
-	deadline, ok := ctx.Deadline()
-	if !ok {
-		// From MQ_SEND(3) manpage, regarding mq_timedsend:
-		//
-		//     If the message queue is full, and the timeout has already expired by
-		//     the time of the call, mq_timedsend() returns immediately.
-		//
-		// So set a timeout to the past to enable non-blocking mode when there's no
-		// deadline set in the context object.
-		deadline = time.Now().Add(-1)
-	}
+	// From MQ_SEND(3) manpage, regarding mq_timedsend:
+	//
+	//     If the message queue is full, and the timeout has already expired by
+	//     the time of the call, mq_timedsend() returns immediately.
+	//
+	// Setting a timeout to the past to enable non-blocking mode.
+	deadline := time.Now().Add(-1)
 
 	t, err := unix.TimeToTimespec(deadline)
 	if err != nil {
@@ -101,7 +127,7 @@ func (m *MessageQueue) Send(ctx context.Context, data []byte) (err error) {
 		uintptr(m.fd),                     // mqdes
 		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
 		uintptr(len(data)),                // msg_len
-		0,                                 // msg_prio
+		uintptr(priority),                 // msg_prio
 		uintptr(unsafe.Pointer(&t)),       // abs_timeout
 		0,                                 // unused
 	)
@@ -109,4 +135,33 @@ func (m *MessageQueue) Send(ctx context.Context, data []byte) (err error) {
 		return
 	}
 	return
+}
+
+func (m *MessageQueue) Close() error {
+	return unix.Close(int(m.fd))
+}
+
+func (m *MessageQueue) Unlink(qname string) error {
+
+	name, err := unix.BytePtrFromString(qname)
+	if err != nil {
+		return err
+	}
+	// Close via the file descriptor before removing the queue.
+	err = m.Close()
+	if err != nil {
+		return err
+	}
+
+	_, _, errno := unix.Syscall(
+		mq_unlink,
+		uintptr(unsafe.Pointer(name)), // name
+		0,
+		0,
+	)
+
+	if errno != 0 {
+		return errno
+	}
+	return nil
 }
