@@ -71,3 +71,32 @@ func Open(qname string) (m *MessageQueue, err error) {
 	m.fd = int(mqd)
 	return
 }
+
+func (m *MessageQueue) Close() error {
+	return unix.Close(int(m.fd))
+}
+
+func (m *MessageQueue) Unlink(qname string) error {
+
+	name, err := unix.BytePtrFromString(qname)
+	if err != nil {
+		return err
+	}
+	// Close via the file descriptor before removing the queue.
+	err = m.Close()
+	if err != nil {
+		return err
+	}
+
+	_, _, errno := unix.Syscall(
+		mq_unlink,
+		uintptr(unsafe.Pointer(name)), // name
+		0,
+		0,
+	)
+
+	if errno != 0 {
+		return errno
+	}
+	return nil
+}
