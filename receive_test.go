@@ -8,21 +8,29 @@ import (
 
 func TestReceive(t *testing.T) {
 
-	m, err := posixmq.Open("test-receive")
+	msg := "hello"
+	qname := "test-receive"
+	mq, err := posixmq.Open(qname)
 	if err != nil {
-		t.Fatal(m, err)
+		t.Fatal(err)
 	}
 
-	data := []byte("hello")
-	err = m.Send(data, 0)
+	data := []byte(msg)
+	err = mq.Send(data, 0)
 	if err != nil {
-		t.Fatal(m, err)
+		t.Fatal(err)
 	}
 
-	resp, err := m.Receive()
+	resp, err := mq.Receive()
 	if err != nil {
-		t.Fatal(m, err)
+		t.Fatal(err)
 	}
 
-	t.Log("response:", string(resp))
+	if string(resp) != msg {
+		t.Log("response:", string(resp))
+	}
+	err = mq.Unlink(qname)
+	if err != nil {
+		t.Fatal(mq, err)
+	}
 }

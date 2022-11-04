@@ -23,8 +23,10 @@ const (
 
 // MessageQueue
 type MessageQueue struct {
-	name string //name of the queue
-	fd   int    //file descriptor for the queue
+	name        string //name of the queue
+	fd          int    //file descriptor for the queue
+	queueSize   int64  //max. queue size
+	messageSize int64  //max. message size
 }
 
 type mqAttr struct {
@@ -35,10 +37,18 @@ type mqAttr struct {
 }
 
 // Open creates a message queue for read and write.
-func Open(qname string) (m *MessageQueue, err error) {
+func Open(qname string, options ...func(*MessageQueue)) (m *MessageQueue, err error) {
 
 	m = new(MessageQueue)
-	//TODO: this is weird, because according to spec names should start with /
+
+	m.queueSize = 10
+	m.messageSize = 8192
+
+	for _, applyOpt := range options {
+		applyOpt(m)
+	}
+
+	//TODO: this is weird, because according to the spec names should start with /
 	if strings.HasPrefix(qname, "/") {
 		return m, errors.New("message queue must not start with /")
 	}
@@ -58,8 +68,8 @@ func Open(qname string) (m *MessageQueue, err error) {
 		uintptr(flags),                // oflag
 		uintptr(MessageQueueOpenMode), // mode
 		uintptr(unsafe.Pointer(&mqAttr{
-			MaxQueueSize:   10,
-			MaxMessageSize: 8192,
+			MaxQueueSize:   m.queueSize,
+			MaxMessageSize: m.messageSize,
 		})), //queue attributes
 		0, //unused
 		0, //unused
@@ -70,6 +80,18 @@ func Open(qname string) (m *MessageQueue, err error) {
 	m.name = qname
 	m.fd = int(mqd)
 	return
+}
+
+func (m *MessageQueue) WithQueueSize(n int64) func(*MessageQueue) {
+	return func(m *MessageQueue) {
+		m.queueSize = n
+	}
+}
+
+func (m *MessageQueue) WithMessageSize(n int64) func(*MessageQueue) {
+	return func(m *MessageQueue) {
+		m.messageSize = n
+	}
 }
 
 func (m *MessageQueue) Close() error {

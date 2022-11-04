@@ -8,31 +8,14 @@ import (
 
 func TestSend(t *testing.T) {
 
-	m, err := posixmq.Open("test-send")
+	qname := "test-send"
+	m, err := posixmq.Open(qname)
 	if err != nil {
 		t.Fatal(m, err)
 	}
 
 	data := []byte("hello")
 	err = m.Send(data, 2)
-	if err != nil {
-		t.Fatal(m, err)
-	}
-}
-
-func TestUnlink(t *testing.T) {
-
-	m, err := posixmq.Open("test-unlink")
-	if err != nil {
-		t.Fatal(m, err)
-	}
-
-	data := []byte("hello")
-	err = m.Send(data, 2)
-	if err != nil {
-		t.Fatal(m, err)
-	}
-	err = m.Unlink("test-unlink")
 	if err != nil {
 		t.Fatal(m, err)
 	}
