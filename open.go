@@ -14,6 +14,7 @@ var _ Queue = (*MessageQueue)(nil)
 // MessageQueueOpenMode is the mode used to open message queues.
 const MessageQueueOpenMode = 0640
 
+// Aliasing signals.
 const (
 	mq_open    = unix.SYS_MQ_OPEN
 	mq_send    = unix.SYS_MQ_TIMEDSEND
@@ -21,12 +22,19 @@ const (
 	mq_unlink  = unix.SYS_MQ_UNLINK
 )
 
-// MessageQueue
+// MessageQueue embraces attributes of a message queue.
 type MessageQueue struct {
-	name        string //name of the queue
-	fd          int    //file descriptor for the queue
-	queueSize   int64  //max. queue size
-	messageSize int64  //max. message size
+	//Name of the queue
+	name string
+
+	//The file descriptor for the queue
+	fd int
+
+	// The max number of messages in the queue.
+	queueSize int64
+
+	// The max size in bytes per message.
+	messageSize int64
 }
 
 type mqAttr struct {
