@@ -6,23 +6,9 @@ import (
 	"github.com/narslan/posixmq"
 )
 
-func TestOpen(t *testing.T) {
-
-	m, err := posixmq.Open("test")
-	if err != nil {
-		t.Fatal(m, err)
-	}
-
-	m, err = posixmq.Open("test")
-	if err == nil {
-		t.Fatal(m, err)
-	}
-
-}
-
 func TestSend(t *testing.T) {
 
-	m, err := posixmq.Open("test")
+	m, err := posixmq.Open("test-send")
 	if err != nil {
 		t.Fatal(m, err)
 	}
@@ -50,19 +36,4 @@ func TestUnlink(t *testing.T) {
 	if err != nil {
 		t.Fatal(m, err)
 	}
-}
-
-func TestReceive(t *testing.T) {
-
-	m, err := posixmq.Open("test-receive")
-	if err != nil {
-		t.Fatal(m, err)
-	}
-
-	resp, err := m.Receive()
-	if err != nil {
-		t.Fatal(m, err)
-	}
-
-	t.Log("response:", string(resp))
 }
