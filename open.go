@@ -1,8 +1,7 @@
 package posixmq
 
 import (
-	"errors"
-	"strings"
+	"context"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
@@ -45,7 +44,7 @@ type mqAttr struct {
 }
 
 // Open creates a message queue for read and write.
-func Open(qname string, options ...func(*MessageQueue)) (m *MessageQueue, err error) {
+func Open(ctx context.Context, qname string, options ...func(*MessageQueue)) (m *MessageQueue, err error) {
 
 	m = new(MessageQueue)
 
@@ -54,11 +53,6 @@ func Open(qname string, options ...func(*MessageQueue)) (m *MessageQueue, err er
 
 	for _, applyOpt := range options {
 		applyOpt(m)
-	}
-
-	//TODO: this is weird, because according to the spec names should start with /
-	if strings.HasPrefix(qname, "/") {
-		return m, errors.New("message queue must not start with /")
 	}
 
 	name, err := unix.BytePtrFromString(qname)
@@ -90,30 +84,28 @@ func Open(qname string, options ...func(*MessageQueue)) (m *MessageQueue, err er
 	return
 }
 
+// WithQueueSize sets queue size.
 func (m *MessageQueue) WithQueueSize(n int64) func(*MessageQueue) {
 	return func(m *MessageQueue) {
 		m.queueSize = n
 	}
 }
 
+// WithMessageSize sets message size.
 func (m *MessageQueue) WithMessageSize(n int64) func(*MessageQueue) {
 	return func(m *MessageQueue) {
 		m.messageSize = n
 	}
 }
 
-func (m *MessageQueue) Close() error {
+// Close closes the message que queue.
+func (m *MessageQueue) Close(ctx context.Context) error {
 	return unix.Close(int(m.fd))
 }
 
-func (m *MessageQueue) Unlink(qname string) error {
+func (m *MessageQueue) Unlink(ctx context.Context, qname string) error {
 
 	name, err := unix.BytePtrFromString(qname)
-	if err != nil {
-		return err
-	}
-	// Close via the file descriptor before removing the queue.
-	err = m.Close()
 	if err != nil {
 		return err
 	}

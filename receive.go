@@ -1,13 +1,14 @@
 package posixmq
 
 import (
+	"context"
 	"time"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
 
-func (m *MessageQueue) Receive() ([]byte, error) {
+func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 
 	deadline := time.Now().Add(-1)
 

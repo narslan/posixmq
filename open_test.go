@@ -1,6 +1,7 @@
 package posixmq_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/narslan/posixmq"
@@ -9,11 +10,12 @@ import (
 func TestOpen(t *testing.T) {
 
 	qname := "test-open"
-	m, err := posixmq.Open(qname)
+	ctx := context.Background()
+	m, err := posixmq.Open(ctx, qname)
 	if err != nil {
 		t.Fatal(m, err)
 	}
-	m.Close()
+	m.Close(ctx)
 
 }
 
@@ -21,18 +23,18 @@ func TestUnlink(t *testing.T) {
 
 	msg := "hello"
 	qname := "test-unlink"
-
-	mq, err := posixmq.Open(qname)
+	ctx := context.Background()
+	mq, err := posixmq.Open(ctx, qname)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	data := []byte(msg)
-	err = mq.Send(data, 2)
+	err = mq.Send(ctx, data, 2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = mq.Unlink(qname)
+	err = mq.Unlink(ctx, qname)
 	if err != nil {
 		t.Fatal(mq)
 	}

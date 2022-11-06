@@ -1,6 +1,7 @@
 package posixmq_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/narslan/posixmq"
@@ -9,13 +10,14 @@ import (
 func TestSend(t *testing.T) {
 
 	qname := "test-send"
-	m, err := posixmq.Open(qname)
+	ctx := context.Background()
+	m, err := posixmq.Open(ctx, qname)
 	if err != nil {
 		t.Fatal(m, err)
 	}
 
 	data := []byte("hello")
-	err = m.Send(data, 2)
+	err = m.Send(ctx, data, 2)
 	if err != nil {
 		t.Fatal(m, err)
 	}
