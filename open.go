@@ -73,10 +73,11 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 	)
 	switch errno {
 	case 0:
+		return nil, fmt.Errorf("[open] %w", errno)
+	default:
 		m.fd = int(mqd)
 		return m, nil
-	default:
-		return nil, fmt.Errorf("[open] %w", errno)
+
 	}
 
 }

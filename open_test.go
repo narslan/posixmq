@@ -33,7 +33,7 @@ func TestUnlink(t *testing.T) {
 	ctx := context.Background()
 	cfg := &posixmq.Config{
 		QueueSize:   100,
-		MessageSize: 100,
+		MessageSize: 1024,
 		Name:        "test-unlink",
 	}
 	mq, err := posixmq.Open(ctx, cfg)
