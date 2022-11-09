@@ -36,6 +36,7 @@ type MessageQueue struct {
 	messageSize int64
 }
 
+// mqAttr is the attributes of message queue.
 type mqAttr struct {
 	_              int64
 	MaxQueueSize   int64
@@ -44,16 +45,11 @@ type mqAttr struct {
 }
 
 // Open creates a message queue for read and write.
-func Open(ctx context.Context, qname string, options ...func(*MessageQueue)) (m *MessageQueue, err error) {
+func Open(ctx context.Context, qname string, queueSize int64, messageSize int64) (m *MessageQueue, err error) {
 
 	m = new(MessageQueue)
-
-	m.queueSize = 10
-	m.messageSize = 8192
-
-	for _, applyOpt := range options {
-		applyOpt(m)
-	}
+	m.queueSize = queueSize
+	m.messageSize = messageSize
 
 	name, err := unix.BytePtrFromString(qname)
 	if err != nil {

@@ -2,6 +2,7 @@ package posixmq
 
 import (
 	"context"
+	"syscall"
 	"time"
 	"unsafe"
 
@@ -27,9 +28,21 @@ func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 		uintptr(unsafe.Pointer(&t)),       // abs_timeout
 		0,                                 // unused
 	)
-	if errno != 0 {
+
+	switch errno {
+	default:
 		return nil, errno
+	case 0:
+		return nil, nil
+	case syscall.EMSGSIZE:
+		return nil, MessageTooLongError{
+			MessageSize: len(data),
+			Cause:       errno,
+		}
+	case syscall.ETIMEDOUT:
+		return nil, TimedOutError{
+			Cause: errno,
+		}
 	}
-	return data, nil
 
 }

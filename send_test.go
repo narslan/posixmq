@@ -11,14 +11,42 @@ func TestSend(t *testing.T) {
 
 	qname := "test-send"
 	ctx := context.Background()
-	m, err := posixmq.Open(ctx, qname)
+
+	mq, err := posixmq.Open(ctx, qname, qsize, msize)
 	if err != nil {
-		t.Fatal(m, err)
+		t.Fatal(mq, err)
 	}
 
 	data := []byte("hello")
-	err = m.Send(ctx, data, 2)
+
+	err = mq.Send(ctx, data, 2)
 	if err != nil {
-		t.Fatal(m, err)
+		t.Fatal(mq, err)
 	}
+
+	mq.Close(ctx)
+	mq.Unlink(ctx, qname)
+}
+
+func BenchmarkSend(b *testing.B) {
+	b.ReportAllocs()
+
+	qname := "test-send"
+	ctx := context.Background()
+
+	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+	if err != nil {
+		b.Fatal(mq, err)
+	}
+
+	for n := 0; n < b.N; n++ {
+
+		data := []byte("hello")
+		err = mq.Send(ctx, data, 2)
+		if err != nil {
+			b.Fatal(mq, err)
+		}
+	}
+	mq.Close(ctx)
+	mq.Unlink(ctx, qname)
 }

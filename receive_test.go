@@ -13,7 +13,8 @@ func TestReceive(t *testing.T) {
 	qname := "test-receive"
 	ctx := context.Background()
 
-	mq, err := posixmq.Open(ctx, qname)
+	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+
 	if err != nil {
 		t.Fatal(err)
 	}
