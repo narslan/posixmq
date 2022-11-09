@@ -9,16 +9,20 @@ import (
 
 func TestReceive(t *testing.T) {
 
-	msg := "hello"
-	qname := "test-receive"
 	ctx := context.Background()
 
-	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+	cfg := &posixmq.Config{
+		QueueSize:   100,
+		MessageSize: 100,
+		Name:        "test-receive",
+	}
+	mq, err := posixmq.Open(ctx, cfg)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	msg := "hello"
 	data := []byte(msg)
 	err = mq.Send(ctx, data, 0)
 	if err != nil {
@@ -32,9 +36,5 @@ func TestReceive(t *testing.T) {
 
 	if string(resp) != msg {
 		t.Log("response:", string(resp))
-	}
-	err = mq.Unlink(ctx, qname)
-	if err != nil {
-		t.Fatal(mq, err)
 	}
 }

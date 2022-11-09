@@ -2,6 +2,7 @@ package posixmq
 
 import (
 	"context"
+	"fmt"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
@@ -23,17 +24,9 @@ const (
 
 // MessageQueue embraces attributes of a message queue.
 type MessageQueue struct {
-	//Name of the queue
-	name string
-
+	*Config
 	//The file descriptor for the queue
 	fd int
-
-	// The max number of messages in the queue.
-	queueSize int64
-
-	// The max size in bytes per message.
-	messageSize int64
 }
 
 // mqAttr is the attributes of message queue.
@@ -44,14 +37,20 @@ type mqAttr struct {
 	_              int64
 }
 
+type Config struct {
+	QueueSize   int64
+	MessageSize int64
+	Name        string
+}
+
 // Open creates a message queue for read and write.
-func Open(ctx context.Context, qname string, queueSize int64, messageSize int64) (m *MessageQueue, err error) {
+func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 
 	m = new(MessageQueue)
-	m.queueSize = queueSize
-	m.messageSize = messageSize
+	m.Config = cfg
 
-	name, err := unix.BytePtrFromString(qname)
+	//BytePtrFromString returns a pointer to a NUL-terminated array of bytes
+	name, err := unix.BytePtrFromString(cfg.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -66,32 +65,20 @@ func Open(ctx context.Context, qname string, queueSize int64, messageSize int64)
 		uintptr(flags),                // oflag
 		uintptr(MessageQueueOpenMode), // mode
 		uintptr(unsafe.Pointer(&mqAttr{
-			MaxQueueSize:   m.queueSize,
-			MaxMessageSize: m.messageSize,
+			MaxQueueSize:   cfg.QueueSize,
+			MaxMessageSize: cfg.MessageSize,
 		})), //queue attributes
 		0, //unused
 		0, //unused
 	)
-	if errno != 0 {
-		return nil, errno
+	switch errno {
+	case 0:
+		m.fd = int(mqd)
+		return m, nil
+	default:
+		return nil, fmt.Errorf("[open] %w", errno)
 	}
-	m.name = qname
-	m.fd = int(mqd)
-	return
-}
 
-// WithQueueSize sets queue size.
-func (m *MessageQueue) WithQueueSize(n int64) func(*MessageQueue) {
-	return func(m *MessageQueue) {
-		m.queueSize = n
-	}
-}
-
-// WithMessageSize sets message size.
-func (m *MessageQueue) WithMessageSize(n int64) func(*MessageQueue) {
-	return func(m *MessageQueue) {
-		m.messageSize = n
-	}
 }
 
 // Close closes the message que queue.

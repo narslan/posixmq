@@ -12,14 +12,19 @@ func TestSend(t *testing.T) {
 	qname := "test-send"
 	ctx := context.Background()
 
-	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+	cfg := &posixmq.Config{
+		QueueSize:   100,
+		MessageSize: 100,
+		Name:        "test-unlink",
+	}
+	mq, err := posixmq.Open(ctx, cfg)
 	if err != nil {
 		t.Fatal(mq, err)
 	}
 
 	data := []byte("hello")
-
 	err = mq.Send(ctx, data, 2)
+
 	if err != nil {
 		t.Fatal(mq, err)
 	}
@@ -34,7 +39,13 @@ func BenchmarkSend(b *testing.B) {
 	qname := "test-send"
 	ctx := context.Background()
 
-	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+	cfg := &posixmq.Config{
+		QueueSize:   100,
+		MessageSize: 100,
+		Name:        "test-unlink",
+	}
+	mq, err := posixmq.Open(ctx, cfg)
+
 	if err != nil {
 		b.Fatal(mq, err)
 	}

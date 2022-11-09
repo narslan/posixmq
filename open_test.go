@@ -7,14 +7,19 @@ import (
 	"github.com/narslan/posixmq"
 )
 
-var qsize int64 = 8    // number of message that queue accepts
-var msize int64 = 4096 // limit of size of each message
+//var qsize int64 = 8    // number of message that queue accepts
+//var msize int64 = 4096 // limit of size of each message
 
 func TestOpen(t *testing.T) {
 
-	qname := "test-open"
 	ctx := context.Background()
-	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+	cfg := &posixmq.Config{
+		QueueSize:   100,
+		MessageSize: 4096, //TODO: converter
+		Name:        "test-open",
+	}
+
+	mq, err := posixmq.Open(ctx, cfg)
 
 	if err != nil {
 		t.Fatal(mq, err)
@@ -25,23 +30,26 @@ func TestOpen(t *testing.T) {
 
 func TestUnlink(t *testing.T) {
 
-	msg := "hello"
-	qname := "test-unlink"
-
 	ctx := context.Background()
-	mq, err := posixmq.Open(ctx, qname, qsize, msize)
+	cfg := &posixmq.Config{
+		QueueSize:   100,
+		MessageSize: 100,
+		Name:        "test-unlink",
+	}
+	mq, err := posixmq.Open(ctx, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	data := []byte(msg)
+	data := []byte("test byte")
+	//with priority 2
 	err = mq.Send(ctx, data, 2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	mq.Close(ctx)
-	err = mq.Unlink(ctx, qname)
+	err = mq.Unlink(ctx, cfg.Name)
 	if err != nil {
 		t.Fatal(mq)
 	}
