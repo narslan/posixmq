@@ -12,8 +12,8 @@ func TestReceive(t *testing.T) {
 	ctx := context.Background()
 
 	cfg := &posixmq.Config{
-		QueueSize:   100,
-		MessageSize: 100,
+		QueueSize:   10,
+		MessageSize: 4096,
 		Name:        "test-receive",
 	}
 	mq, err := posixmq.Open(ctx, cfg)
@@ -37,4 +37,6 @@ func TestReceive(t *testing.T) {
 	if string(resp) != msg {
 		t.Log("response:", string(resp))
 	}
+	mq.Close(ctx)
+	mq.Unlink(ctx, cfg.Name)
 }

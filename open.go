@@ -3,6 +3,7 @@ package posixmq
 import (
 	"context"
 	"fmt"
+	"strings"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
@@ -43,6 +44,15 @@ type Config struct {
 	Name        string
 }
 
+func (cfg *Config) String() string {
+	var b strings.Builder
+
+	b.WriteString("queue message size queue size \n")
+
+	fmt.Fprintf(&b, "%s %d %d \n", cfg.Name, cfg.MessageSize, cfg.QueueSize)
+	return b.String()
+}
+
 // Open creates a message queue for read and write.
 func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 
@@ -65,24 +75,24 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 		uintptr(flags),                // oflag
 		uintptr(MessageQueueOpenMode), // mode
 		uintptr(unsafe.Pointer(&mqAttr{
-			MaxQueueSize:   cfg.QueueSize,
-			MaxMessageSize: cfg.MessageSize,
+			MaxQueueSize:   m.QueueSize,
+			MaxMessageSize: m.MessageSize,
 		})), //queue attributes
 		0, //unused
 		0, //unused
 	)
 	switch errno {
 	case 0:
-		return nil, fmt.Errorf("[open] %w", errno)
-	default:
 		m.fd = int(mqd)
-		return m, nil
+		return
+	default:
+		return nil, fmt.Errorf("[open] %w", errno)
 
 	}
 
 }
 
-// Close closes the message que queue.
+// Close closes the message queue.
 func (m *MessageQueue) Close(ctx context.Context) error {
 	return unix.Close(int(m.fd))
 }

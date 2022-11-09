@@ -14,7 +14,7 @@ func TestOpen(t *testing.T) {
 
 	ctx := context.Background()
 	cfg := &posixmq.Config{
-		QueueSize:   100,
+		QueueSize:   10,
 		MessageSize: 4096, //TODO: converter
 		Name:        "test-open",
 	}
@@ -25,14 +25,14 @@ func TestOpen(t *testing.T) {
 		t.Fatal(mq, err)
 	}
 	mq.Close(ctx)
-
+	mq.Unlink(ctx, cfg.Name)
 }
 
 func TestUnlink(t *testing.T) {
 
 	ctx := context.Background()
 	cfg := &posixmq.Config{
-		QueueSize:   100,
+		QueueSize:   10,
 		MessageSize: 1024,
 		Name:        "test-unlink",
 	}
