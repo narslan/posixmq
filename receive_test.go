@@ -35,7 +35,7 @@ func TestReceive(t *testing.T) {
 	}
 
 	if string(resp) != msg {
-		t.Log("response:", string(resp))
+		t.Logf("response: %q", string(resp))
 	}
 	mq.Close(ctx)
 	mq.Unlink(ctx, cfg.Name)

@@ -49,12 +49,13 @@ func (m *MessageQueue) Send(ctx context.Context, data []byte, priority uint) (er
 			MessageSize: len(data),
 			Cause:       errno,
 		}
+	case syscall.EAGAIN:
+		return fmt.Errorf("again: %s", errno)
 	case syscall.ETIMEDOUT:
 		return TimedOutError{
 			Cause: errno,
 		}
-	case syscall.EAGAIN:
-		return fmt.Errorf("again: %s", errno)
+
 	}
 
 }

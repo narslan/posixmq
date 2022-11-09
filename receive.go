@@ -1,6 +1,7 @@
 package posixmq
 
 import (
+	"bytes"
 	"context"
 	"syscall"
 	"time"
@@ -11,19 +12,19 @@ import (
 
 func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 
-	deadline := time.Now().Add(-1)
+	deadline := time.Now().Add(1 * time.Minute)
 
 	t, err := unix.TimeToTimespec(deadline)
 	if err != nil {
 		return nil, err
 	}
 
-	data := make([]byte, 8192)
+	data := make([]byte, m.MessageSize)
 	_, _, errno := unix.Syscall6(
 		mq_receive,
 		uintptr(m.fd),                     // mqdes
 		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
-		uintptr(8192),                     // msg_len
+		uintptr(m.MessageSize),            // msg_len
 		0,                                 // msg_prio
 		uintptr(unsafe.Pointer(&t)),       // abs_timeout
 		0,                                 // unused
@@ -33,7 +34,7 @@ func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 	default:
 		return nil, errno
 	case 0:
-		return nil, nil
+		return bytes.TrimRight(data, "\x00"), nil
 	case syscall.EMSGSIZE:
 		return nil, MessageTooLongError{
 			MessageSize: len(data),
