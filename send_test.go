@@ -46,14 +46,21 @@ func TestSendCases(t *testing.T) {
 		t.Fatal(mq, err)
 	}
 
-	for i := 0; i < int(cfg.MessageSize); i++ {
+	for i := 0; i < int(cfg.QueueSize); i++ {
 		data := []byte("hello")
 		err = mq.Send(ctx, data, 2)
 
 		if err != nil {
-			mq.Close(ctx)
-			mq.Unlink(ctx, cfg.Name)
-			t.Fatal(mq, err)
+
+			err := mq.Close(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = mq.Unlink(ctx, cfg.Name)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 		}
 	}
 

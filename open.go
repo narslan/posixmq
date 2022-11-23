@@ -49,7 +49,7 @@ func (cfg *Config) String() string {
 
 	b.WriteString("queue message size queue size \n")
 
-	fmt.Fprintf(&b, "%q has [message size]:%d [queue capacity]:%d \n", cfg.Name, cfg.MessageSize, cfg.QueueSize)
+	fmt.Fprintf(&b, "queue %q has [message size]:%d [queue capacity]:%d \n", cfg.Name, cfg.MessageSize, cfg.QueueSize)
 	return b.String()
 }
 
