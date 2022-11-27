@@ -15,7 +15,7 @@ func TestOpen(t *testing.T) {
 	ctx := context.Background()
 	cfg := &posixmq.Config{
 		QueueSize:   10,
-		MessageSize: 4096, //TODO: converter
+		MessageSize: 4096,
 		Name:        "test-open",
 	}
 

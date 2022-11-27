@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/go-kit/log"
 	"github.com/mailru/easygo/netpoll"
 	"golang.org/x/sys/unix"
-	"os"
 )
 
 func epollConfig() *netpoll.EpollConfig {
@@ -41,14 +42,14 @@ func OpenWithEpoll(ctx context.Context, cfg *Config) (m *MessageQueue, err error
 
 	handler := func(evt netpoll.EpollEvent) {
 
-		log.Log("call", "first handler")
-		// I couln't import _EPOLLCLOSED from netpoll package
+		logger.Log("call", "first handler")
+		// @nevroz I couln't import _EPOLLCLOSED from netpoll package
 		if evt&0x20 != 0 {
 			return
 		}
 
 		ep.Add(m.fd, netpoll.EPOLLIN|netpoll.EPOLLET|netpoll.EPOLLHUP|netpoll.EPOLLRDHUP, func(evt netpoll.EpollEvent) {
-			log.Log("call", "second handler")
+			logger.Log("call", "second handler")
 			// If EPOLLRDHUP is supported, it will be triggered after conn
 			// close() or shutdown(). In older versions EPOLLHUP is triggered.
 			if evt&0x20 != 0 {
@@ -70,7 +71,6 @@ func OpenWithEpoll(ctx context.Context, cfg *Config) (m *MessageQueue, err error
 		})
 
 	}
-	logger.Log("question", "what is happening?")
 	ep.Add(m.fd, netpoll.EPOLLIN, handler)
 	return
 }
