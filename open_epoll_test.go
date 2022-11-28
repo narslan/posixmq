@@ -22,9 +22,9 @@ func TestOpenWithEpoll(t *testing.T) {
 		t.Fatal(mq, err)
 	}
 
-	data := []byte("hello there!")
+	//	data := []byte("hello there!")
 	// sending the bytes with priority ten.
-	mq.Send(ctx, data, 10)
+	//	mq.Send(ctx, data, 10)
 
 	mq.Close(ctx)
 	mq.Unlink(ctx, cfg.Name)
