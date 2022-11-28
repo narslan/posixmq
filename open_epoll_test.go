@@ -2,8 +2,9 @@ package posixmq_test
 
 import (
 	"context"
-	"github.com/narslan/posixmq"
 	"testing"
+
+	"github.com/narslan/posixmq"
 )
 
 func TestOpenWithEpoll(t *testing.T) {
@@ -24,6 +25,7 @@ func TestOpenWithEpoll(t *testing.T) {
 	data := []byte("hello there!")
 	// sending the bytes with priority ten.
 	mq.Send(ctx, data, 10)
+
 	mq.Close(ctx)
 	mq.Unlink(ctx, cfg.Name)
 }
