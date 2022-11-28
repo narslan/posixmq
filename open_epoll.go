@@ -21,7 +21,7 @@ func epollConfig() *netpoll.EpollConfig {
 
 func OpenWithEpoll(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 
-	w := log.NewSyncWriter(os.Stderr)
+	w := log.NewSyncWriter(os.Stdout)
 	logger := log.NewLogfmtLogger(w)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 
@@ -72,5 +72,13 @@ func OpenWithEpoll(ctx context.Context, cfg *Config) (m *MessageQueue, err error
 
 	}
 	ep.Add(m.fd, netpoll.EPOLLIN, handler)
+	<-done
+
+	if err = ep.Close(); err != nil {
+
+		panic(err)
+	}
+
+	logger.Log("received", string(received.Bytes()))
 	return
 }
