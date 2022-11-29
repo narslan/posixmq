@@ -27,7 +27,7 @@ const (
 type MessageQueue struct {
 	*Config
 	//The file descriptor for the queue
-	fd int
+	FD int
 }
 
 // mqAttr is the attributes of message queue.
