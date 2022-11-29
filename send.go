@@ -32,7 +32,7 @@ func (m *MessageQueue) Send(ctx context.Context, data []byte, priority uint) (er
 	// mqd_t mqdes, const char *msg_ptr size_t msg_len, unsigned int msg_prio
 	_, _, errno := unix.Syscall6(
 		mq_send,
-		uintptr(m.fd),                     // mqdes
+		uintptr(m.FD),                     // mqdes
 		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
 		uintptr(len(data)),                // msg_len
 		uintptr(priority),                 // msg_prio
