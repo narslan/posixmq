@@ -80,6 +80,7 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 		0, // unused
 		0, // unused
 	)
+
 	switch errno {
 	case 0:
 		m.FD = int(mqd)
