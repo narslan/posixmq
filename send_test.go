@@ -8,7 +8,6 @@ import (
 )
 
 func TestSendOpen(t *testing.T) {
-
 	cfg := &posixmq.Config{
 		QueueSize:   10,
 		MessageSize: 4096,
@@ -29,11 +28,10 @@ func TestSendOpen(t *testing.T) {
 	}
 
 	mq.Close(ctx)
-	mq.Unlink(ctx, cfg.Name)
+	mq.Unlink(ctx)
 }
 
 func TestSendCases(t *testing.T) {
-
 	cfg := &posixmq.Config{
 		QueueSize:   10,
 		MessageSize: 4096,
@@ -56,7 +54,7 @@ func TestSendCases(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			err = mq.Unlink(ctx, cfg.Name)
+			err = mq.Unlink(ctx)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -65,14 +63,12 @@ func TestSendCases(t *testing.T) {
 	}
 
 	mq.Close(ctx)
-	mq.Unlink(ctx, cfg.Name)
-
+	mq.Unlink(ctx)
 }
 
 func BenchmarkSend(b *testing.B) {
 	b.ReportAllocs()
 
-	qname := "test-send"
 	ctx := context.Background()
 
 	cfg := &posixmq.Config{
@@ -81,7 +77,6 @@ func BenchmarkSend(b *testing.B) {
 		Name:        "test-unlink",
 	}
 	mq, err := posixmq.Open(ctx, cfg)
-
 	if err != nil {
 		b.Fatal(mq, err)
 	}
@@ -95,5 +90,5 @@ func BenchmarkSend(b *testing.B) {
 		}
 	}
 	mq.Close(ctx)
-	mq.Unlink(ctx, qname)
+	mq.Unlink(ctx)
 }

@@ -8,7 +8,6 @@ import (
 )
 
 func TestReceive(t *testing.T) {
-
 	ctx := context.Background()
 
 	cfg := &posixmq.Config{
@@ -17,7 +16,6 @@ func TestReceive(t *testing.T) {
 		Name:        "test-receive",
 	}
 	mq, err := posixmq.Open(ctx, cfg)
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,5 +36,5 @@ func TestReceive(t *testing.T) {
 		t.Logf("response: %q", string(resp))
 	}
 	mq.Close(ctx)
-	mq.Unlink(ctx, cfg.Name)
+	mq.Unlink(ctx)
 }

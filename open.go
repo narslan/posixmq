@@ -95,8 +95,8 @@ func (m *MessageQueue) Close(ctx context.Context) error {
 	return unix.Close(int(m.FD))
 }
 
-func (m *MessageQueue) Unlink(ctx context.Context, qname string) error {
-	name, err := unix.BytePtrFromString(qname)
+func (m *MessageQueue) Unlink(ctx context.Context) error {
+	name, err := unix.BytePtrFromString(m.Name)
 	if err != nil {
 		return err
 	}

@@ -26,7 +26,7 @@ func TestOpen(t *testing.T) {
 	t.Log(cfg)
 
 	mq.Close(ctx)
-	mq.Unlink(ctx, cfg.Name)
+	mq.Unlink(ctx)
 }
 
 func TestUnlink(t *testing.T) {
@@ -49,7 +49,7 @@ func TestUnlink(t *testing.T) {
 	}
 
 	mq.Close(ctx)
-	err = mq.Unlink(ctx, cfg.Name)
+	err = mq.Unlink(ctx)
 	if err != nil {
 		t.Fatal(mq)
 	}
