@@ -11,7 +11,6 @@ import (
 )
 
 func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
-
 	deadline := time.Now().Add(1 * time.Minute)
 
 	t, err := unix.TimeToTimespec(deadline)
@@ -21,7 +20,7 @@ func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 
 	data := make([]byte, m.MessageSize)
 	_, _, errno := unix.Syscall6(
-		mq_receive,
+		mqReceive,
 		uintptr(m.FD),                     // mqdes
 		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
 		uintptr(m.MessageSize),            // msg_len
@@ -45,5 +44,4 @@ func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 			Cause: errno,
 		}
 	}
-
 }

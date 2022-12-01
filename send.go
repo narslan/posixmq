@@ -14,7 +14,6 @@ import (
 )
 
 func (m *MessageQueue) Send(ctx context.Context, data []byte, priority uint) (err error) {
-
 	// From MQ_SEND(3) manpage, regarding mq_timedsend:
 	//
 	//     If the message queue is full, and the timeout has already expired by
@@ -31,7 +30,7 @@ func (m *MessageQueue) Send(ctx context.Context, data []byte, priority uint) (er
 	// From MQ_SEND(3) manpage:
 	// mqd_t mqdes, const char *msg_ptr size_t msg_len, unsigned int msg_prio
 	_, _, errno := unix.Syscall6(
-		mq_send,
+		mqSend,
 		uintptr(m.FD),                     // mqdes
 		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
 		uintptr(len(data)),                // msg_len
@@ -57,5 +56,4 @@ func (m *MessageQueue) Send(ctx context.Context, data []byte, priority uint) (er
 		}
 
 	}
-
 }

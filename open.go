@@ -13,20 +13,20 @@ import (
 var _ Queue = (*MessageQueue)(nil)
 
 // MessageQueueOpenMode is the mode used to open message queues.
-const MessageQueueOpenMode = 0640
+const MessageQueueOpenMode = 0o640
 
 // Aliasing signals.
 const (
-	mq_open    = unix.SYS_MQ_OPEN
-	mq_send    = unix.SYS_MQ_TIMEDSEND
-	mq_receive = unix.SYS_MQ_TIMEDRECEIVE
-	mq_unlink  = unix.SYS_MQ_UNLINK
+	mqOpen    = unix.SYS_MQ_OPEN
+	mqSend    = unix.SYS_MQ_TIMEDSEND
+	mqReceive = unix.SYS_MQ_TIMEDRECEIVE
+	mqUnlink  = unix.SYS_MQ_UNLINK
 )
 
 // MessageQueue embraces attributes of a message queue.
 type MessageQueue struct {
 	*Config
-	//The file descriptor for the queue
+	// The file descriptor for the queue
 	FD int
 }
 
@@ -55,11 +55,10 @@ func (cfg *Config) String() string {
 
 // Open creates a message queue for read and write.
 func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
-
 	m = new(MessageQueue)
 	m.Config = cfg
 
-	//BytePtrFromString returns a pointer to a NUL-terminated array of bytes
+	// BytePtrFromString returns a pointer to a NUL-terminated array of bytes
 	name, err := unix.BytePtrFromString(cfg.Name)
 	if err != nil {
 		return nil, err
@@ -70,16 +69,16 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 	// From MQ_OPEN(3) manpage:
 	// mqd_t mq_open(const char *name, int oflag, mode_t mode, struct mq_attr *attr);
 	mqd, _, errno := unix.Syscall6(
-		mq_open,
+		mqOpen,
 		uintptr(unsafe.Pointer(name)), // name
 		uintptr(flags),                // oflag
 		uintptr(MessageQueueOpenMode), // mode
 		uintptr(unsafe.Pointer(&mqAttr{
 			MaxQueueSize:   m.QueueSize,
 			MaxMessageSize: m.MessageSize,
-		})), //queue attributes
-		0, //unused
-		0, //unused
+		})), // queue attributes
+		0, // unused
+		0, // unused
 	)
 	switch errno {
 	case 0:
@@ -89,7 +88,6 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 		return nil, fmt.Errorf("[open] %w", errno)
 
 	}
-
 }
 
 // Close closes the message queue.
@@ -98,14 +96,13 @@ func (m *MessageQueue) Close(ctx context.Context) error {
 }
 
 func (m *MessageQueue) Unlink(ctx context.Context, qname string) error {
-
 	name, err := unix.BytePtrFromString(qname)
 	if err != nil {
 		return err
 	}
 
 	_, _, errno := unix.Syscall(
-		mq_unlink,
+		mqUnlink,
 		uintptr(unsafe.Pointer(name)), // name
 		0,
 		0,
