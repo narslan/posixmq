@@ -44,12 +44,12 @@ type Config struct {
 	Name        string
 }
 
-func (cfg *Config) String() string {
+func (mq *MessageQueue) String() string {
 	var b strings.Builder
 
 	b.WriteString("queue message size queue size \n")
 
-	fmt.Fprintf(&b, "queue %q has [message size]:%d [queue capacity]:%d \n", cfg.Name, cfg.MessageSize, cfg.QueueSize)
+	fmt.Fprintf(&b, "queue %q [fd] %d has [message size]:%d [queue capacity]:%d \n", mq.Name, mq.FD, mq.MessageSize, mq.QueueSize)
 	return b.String()
 }
 
