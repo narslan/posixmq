@@ -22,7 +22,7 @@ func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
 	data := make([]byte, m.MessageSize)
 	_, _, errno := unix.Syscall6(
 		mq_receive,
-		uintptr(m.fd),                     // mqdes
+		uintptr(m.FD),                     // mqdes
 		uintptr(unsafe.Pointer(&data[0])), // msg_ptr
 		uintptr(m.MessageSize),            // msg_len
 		0,                                 // msg_prio

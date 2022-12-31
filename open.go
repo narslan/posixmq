@@ -83,7 +83,7 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 	)
 	switch errno {
 	case 0:
-		m.fd = int(mqd)
+		m.FD = int(mqd)
 		return
 	default:
 		return nil, fmt.Errorf("[open] %w", errno)
@@ -94,7 +94,7 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 
 // Close closes the message queue.
 func (m *MessageQueue) Close(ctx context.Context) error {
-	return unix.Close(int(m.fd))
+	return unix.Close(int(m.FD))
 }
 
 func (m *MessageQueue) Unlink(ctx context.Context, qname string) error {
