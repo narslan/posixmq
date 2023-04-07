@@ -4,7 +4,10 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"context"
+	"log"
+
+	"github.com/narslan/posixmq"
 
 	"github.com/spf13/cobra"
 )
@@ -13,9 +16,16 @@ import (
 var unlinkCmd = &cobra.Command{
 	Use:   "unlink",
 	Short: "delete queue",
-	Long:  `not implemented`,
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("unlink called")
+		qname := args[0]
+		cfg := &posixmq.Config{Name: qname}
+		mq := posixmq.MessageQueue{Config: cfg}
+
+		err := mq.Unlink(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
