@@ -21,9 +21,6 @@ func TestOpen(t *testing.T) {
 	if err != nil {
 		t.Fatal(mq, err)
 	}
-	t.Log("-------")
-	t.Log(mq)
-	t.Log(cfg)
 
 	mq.Close(ctx)
 	mq.Unlink(ctx)
