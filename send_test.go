@@ -1,7 +1,6 @@
 package posixmq_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/narslan/posixmq"
@@ -14,21 +13,20 @@ func TestSendOpen(t *testing.T) {
 		Name:        "test-send",
 	}
 
-	ctx := context.Background()
-	mq, err := posixmq.Open(ctx, cfg)
+	mq, err := posixmq.Open(cfg)
 	if err != nil {
 		t.Fatal(mq, err)
 	}
 
 	data := []byte("hello")
 
-	err = mq.Send(ctx, data, 2)
+	err = mq.Send(data, 2)
 	if err != nil {
 		t.Fatal(mq, err)
 	}
 
-	mq.Close(ctx)
-	mq.Unlink(ctx)
+	mq.Close()
+	mq.Unlink()
 }
 
 func TestSendCases(t *testing.T) {
@@ -38,23 +36,22 @@ func TestSendCases(t *testing.T) {
 		Name:        "test-send1",
 	}
 
-	ctx := context.Background()
-	mq, err := posixmq.Open(ctx, cfg)
+	mq, err := posixmq.Open(cfg)
 	if err != nil {
 		t.Fatal(mq, err)
 	}
 
 	for i := 0; i < int(cfg.QueueSize); i++ {
 		data := []byte("hello")
-		err = mq.Send(ctx, data, 2)
+		err = mq.Send(data, 2)
 
 		if err != nil {
 
-			err := mq.Close(ctx)
+			err := mq.Close()
 			if err != nil {
 				t.Fatal(err)
 			}
-			err = mq.Unlink(ctx)
+			err = mq.Unlink()
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -62,21 +59,19 @@ func TestSendCases(t *testing.T) {
 		}
 	}
 
-	mq.Close(ctx)
-	mq.Unlink(ctx)
+	mq.Close()
+	mq.Unlink()
 }
 
 func BenchmarkSend(b *testing.B) {
 	b.ReportAllocs()
-
-	ctx := context.Background()
 
 	cfg := &posixmq.Config{
 		QueueSize:   10,
 		MessageSize: 4096,
 		Name:        "test-unlink",
 	}
-	mq, err := posixmq.Open(ctx, cfg)
+	mq, err := posixmq.Open(cfg)
 	if err != nil {
 		b.Fatal(mq, err)
 	}
@@ -84,11 +79,11 @@ func BenchmarkSend(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 
 		data := []byte("hello")
-		err = mq.Send(ctx, data, 2)
+		err = mq.Send(data, 2)
 		if err != nil {
 			b.Fatal(mq, err)
 		}
 	}
-	mq.Close(ctx)
-	mq.Unlink(ctx)
+	mq.Close()
+	mq.Unlink()
 }

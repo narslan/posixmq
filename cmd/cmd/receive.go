@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"log"
 
 	"github.com/narslan/posixmq"
@@ -15,19 +14,18 @@ var receiveCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		qname := args[0]
-		ctx := context.Background()
 
 		cfg := &posixmq.Config{
 			QueueSize:   10,
 			MessageSize: 4096,
 			Name:        qname,
 		}
-		mq, err := posixmq.Open(ctx, cfg)
+		mq, err := posixmq.Open(cfg)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		resp, err := mq.Receive(ctx)
+		resp, err := mq.Receive()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -39,14 +37,4 @@ var receiveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(receiveCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// receiveCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// receiveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
