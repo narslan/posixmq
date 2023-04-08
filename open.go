@@ -1,7 +1,6 @@
 package posixmq
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"unsafe"
@@ -54,7 +53,7 @@ func (mq *MessageQueue) String() string {
 }
 
 // Open creates a message queue for read and write.
-func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
+func Open(cfg *Config) (m *MessageQueue, err error) {
 	m = new(MessageQueue)
 	m.Config = cfg
 
@@ -92,11 +91,11 @@ func Open(ctx context.Context, cfg *Config) (m *MessageQueue, err error) {
 }
 
 // Close closes the message queue.
-func (m *MessageQueue) Close(ctx context.Context) error {
+func (m *MessageQueue) Close() error {
 	return unix.Close(int(m.FD))
 }
 
-func (m *MessageQueue) Unlink(ctx context.Context) error {
+func (m *MessageQueue) Unlink() error {
 	name, err := unix.BytePtrFromString(m.Name)
 	if err != nil {
 		return err

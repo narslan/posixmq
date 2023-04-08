@@ -2,7 +2,6 @@ package posixmq
 
 import (
 	"bytes"
-	"context"
 	"syscall"
 	"time"
 	"unsafe"
@@ -10,7 +9,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func (m *MessageQueue) Receive(ctx context.Context) ([]byte, error) {
+func (m *MessageQueue) Receive() ([]byte, error) {
 	deadline := time.Now().Add(1 * time.Minute)
 
 	t, err := unix.TimeToTimespec(deadline)

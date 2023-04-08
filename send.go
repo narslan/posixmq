@@ -4,7 +4,6 @@
 package posixmq
 
 import (
-	"context"
 	"fmt"
 	"syscall"
 	"time"
@@ -13,7 +12,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func (m *MessageQueue) Send(ctx context.Context, data []byte, priority uint) (err error) {
+func (m *MessageQueue) Send(data []byte, priority uint) (err error) {
 	// From MQ_SEND(3) manpage, regarding mq_timedsend:
 	//
 	//     If the message queue is full, and the timeout has already expired by
