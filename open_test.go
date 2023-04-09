@@ -22,7 +22,11 @@ func TestOpen(t *testing.T) {
 	}
 
 	mq.Close()
-	mq.Unlink()
+	err = posixmq.Unlink(mq.Name)
+	if err != nil {
+		t.Fatal(mq)
+	}
+
 }
 
 func TestUnlink(t *testing.T) {
@@ -45,7 +49,7 @@ func TestUnlink(t *testing.T) {
 	}
 
 	mq.Close()
-	err = mq.Unlink()
+	err = posixmq.Unlink(mq.Name)
 	if err != nil {
 		t.Fatal(mq)
 	}

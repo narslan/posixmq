@@ -15,10 +15,8 @@ var unlinkCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		qname := args[0]
-		cfg := &posixmq.Config{Name: qname}
-		mq := posixmq.MessageQueue{Config: cfg}
 
-		err := mq.Unlink()
+		err := posixmq.Unlink(qname)
 		if err != nil {
 			log.Fatal(err)
 		}

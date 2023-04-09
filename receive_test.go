@@ -34,5 +34,6 @@ func TestReceive(t *testing.T) {
 		t.Logf("response: %q", string(resp))
 	}
 	mq.Close()
-	mq.Unlink()
+
+	posixmq.Unlink(mq.Name)
 }

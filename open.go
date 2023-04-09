@@ -95,8 +95,8 @@ func (m *MessageQueue) Close() error {
 	return unix.Close(int(m.FD))
 }
 
-func (m *MessageQueue) Unlink() error {
-	name, err := unix.BytePtrFromString(m.Name)
+func Unlink(qname string) error {
+	name, err := unix.BytePtrFromString(qname)
 	if err != nil {
 		return err
 	}

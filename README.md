@@ -1,2 +1,10 @@
+### posixmq
+
+This package provides two things: 
 A wrapper around posix message queue system calls.
-Queues can be monitored via epoll
+Monitoring the queues via epoll.
+
+
+
+
+

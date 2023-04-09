@@ -26,7 +26,7 @@ func TestSendOpen(t *testing.T) {
 	}
 
 	mq.Close()
-	mq.Unlink()
+	posixmq.Unlink(mq.Name)
 }
 
 func TestSendCases(t *testing.T) {
@@ -51,7 +51,7 @@ func TestSendCases(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			err = mq.Unlink()
+			posixmq.Unlink(mq.Name)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -60,7 +60,8 @@ func TestSendCases(t *testing.T) {
 	}
 
 	mq.Close()
-	mq.Unlink()
+	posixmq.Unlink(mq.Name)
+
 }
 
 func BenchmarkSend(b *testing.B) {
@@ -85,5 +86,6 @@ func BenchmarkSend(b *testing.B) {
 		}
 	}
 	mq.Close()
-	mq.Unlink()
+	posixmq.Unlink(mq.Name)
+
 }
