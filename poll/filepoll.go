@@ -8,6 +8,7 @@ package poll
 
 import (
 	"os"
+	"syscall"
 )
 
 // New creates new epoll-based Poller instance with given config.
@@ -89,4 +90,8 @@ func toEpollEvent(event Event) (ep EpollEvent) {
 		ep |= EPOLLET
 	}
 	return ep
+}
+
+func setNonblock(fd int, nonblocking bool) (err error) {
+	return syscall.SetNonblock(fd, nonblocking)
 }
