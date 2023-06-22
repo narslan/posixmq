@@ -18,6 +18,10 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 
+		if len(args) < 1 {
+			log.Fatal("missing queue name")
+		}
+
 		qname := args[0]
 		// Initialize netpoll instance. We will use it to be noticed about incoming
 		// events from listener of user connections.
