@@ -2,7 +2,7 @@
 
 This package provides two things: 
 A wrapper around posix message queues.
-It allows real time monitoring the queues through epoll.
+It allows real time monitoring of the queues through epoll.
 
 To listen on a queue
 ```sh
