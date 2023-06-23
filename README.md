@@ -1,10 +1,10 @@
 ### posixmq
 
 This package provides two things: 
-A wrapper around posix message queue.
-It allows monitoring the queues via epoll.
+A wrapper around posix message queues.
+It allows real time monitoring the queues through epoll.
 
-To listen a queue
+To listen on a queue
 ```sh
 go run cmd/posixmq-listener/main.go sample_queue 
 ```
